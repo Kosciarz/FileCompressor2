@@ -9,9 +9,12 @@ set(SOURCES
     "src/Compressor.cpp"
     "src/Compress.cpp"
     "src/Decompress.cpp"
+)
+
+set(HEADERS
     "src/Compressor.h"
     "src/Compress.h"
     "src/Decompress.h"
 )
 
-add_executable(FileCompressor2 ${SOURCES})
+add_executable(FileCompressor2 ${SOURCES} ${HEADERS})

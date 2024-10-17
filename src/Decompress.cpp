@@ -20,22 +20,24 @@ namespace compressor {
 		for (int i{}; i < dict_size; i++)
 			dict[i] = {static_cast<char>(i)};
 
-		std::string decompressed_text, pes;
+		int last_code = codes.front();
+		std::string decompressed_text = dict[last_code];
 
-		for (const int& code : codes)
+		for (std::size_t i{1}; i < codes.size(); i++) 
 		{
-			if (dict.contains(code))
+			int code = codes[i];
+			if (std::string last_sequence = dict[last_code]; dict.contains(code)) 
 			{
+				dict[dict_size++] = last_sequence + dict[code][0]; 
 				decompressed_text += dict[code];
-				pes += dict[code][0];
-				dict[dict_size++] = pes;
 			}
-			else
+			else 
 			{
-				const std::string v = pes + dict[code][0];
-				dict[dict_size++] = v;
-				decompressed_text += v;
+				std::string value = last_sequence + last_sequence[0];
+				dict[dict_size++] = value;
+				decompressed_text += value;
 			}
+			last_code = code;
 		}
 
 		WriteTextToFile(file_path, std::move(decompressed_text));
