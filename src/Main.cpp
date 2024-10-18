@@ -2,5 +2,5 @@
 
 int main()
 {
-	compressor::Run();
+    compressor::Run();
 }

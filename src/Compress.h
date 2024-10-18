@@ -5,9 +5,9 @@
 
 #include <string>
 
-namespace compressor {
-
+namespace compressor
+{
     void CompressFile(std::string&& file_path);
 }
 
-#endif //COMPRESS_H
+#endif 
