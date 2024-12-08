@@ -1,4 +1,4 @@
-#include "Compressor.h"
+#include "../headers/Compressor.h"
 
 int main()
 {

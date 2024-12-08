@@ -1,4 +1,4 @@
-#include "Compress.h"
+#include "../headers/Compress.h"
 
 #include <string>
 #include <fstream>
