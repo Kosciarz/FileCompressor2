@@ -1,6 +1,3 @@
 #pragma once
 
-namespace compressor
-{
-    void Run();
-};
+void RunCompressor();
