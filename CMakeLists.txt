@@ -14,9 +14,9 @@ set(SOURCES
 )
 
 set(HEADERS
-    "src/Compressor.h"
-    "src/Compress.h"
-    "src/Decompress.h"
+    "src/Compressor.hpp"
+    "src/Compress.hpp"
+    "src/Decompress.hpp"
 )
 
 add_executable(FileCompressor ${SOURCES} ${HEADERS})
