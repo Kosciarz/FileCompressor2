@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 template <typename T, typename E>
-class Result
+class [[nodiscard]] Result
 {
 public:
     Result() = delete;
@@ -74,7 +74,7 @@ private:
 };
 
 template <typename E>
-class Result<void, E>
+class [[nodiscard]] Result<void, E>
 {
     public:
     Result() = delete;
