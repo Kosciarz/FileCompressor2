@@ -11,6 +11,8 @@ set(HEADERS
     "${SOURCE_DIR}/Compressor.hpp"
     "${SOURCE_DIR}/Compress.hpp"
     "${SOURCE_DIR}/Decompress.hpp"
+    "${SOURCE_DIR}/Result.hpp"
 )
 
 add_executable(FileCompressor ${SOURCES} ${HEADERS})
+target_compile_options(FileCompressor PRIVATE -Wall -Werror -pedantic)
