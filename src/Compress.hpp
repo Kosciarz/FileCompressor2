@@ -1,13 +1,9 @@
 #pragma once
 
-#ifndef COMPRESS_H
-#define COMPRESS_H
+#include <filesystem>
 
-#include <string>
+namespace compressor {
 
-namespace compressor
-{
-    void CompressFile(std::string&& file_path);
+    void CompressFile(const std::filesystem::path& path);
+
 }
-
-#endif 

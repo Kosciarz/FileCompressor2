@@ -2,39 +2,42 @@
 
 #include <string>
 #include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <map>
 #include <vector>
 
-static std::string GetTextToCompress(const std::string& file_path);
-static void WriteCodesToFile(
-    const std::string& file_path,
-    std::vector<int>&& codes
-);
+namespace fs = std::filesystem;
 
-namespace compressor
-{
-    void CompressFile(std::string&& file_path)
+static std::string GetTextToCompress(const fs::path& path);
+
+static void WriteCodesToFile(const fs::path& path, const std::vector<int>& codes);
+
+namespace compressor {
+
+    void CompressFile(const fs::path& path)
     {
-        const std::string text_to_compress = GetTextToCompress(file_path);
+        const std::string textToCompress = GetTextToCompress(path);
 
         std::map<std::string, int> dict;
-        int dict_size{256};
+        int dictSize = 256;
 
-        for (int i{}; i < dict_size; i++)
+        for (int i = 0; i < dictSize; i++)
             dict[{static_cast<char>(i)}] = i;
 
         std::vector<int> codes;
         std::string sequence;
 
-        for (const char& character : text_to_compress)
+        for (const char character : textToCompress)
         {
-            if (const std::string chars_to_add = sequence + character; dict.contains(chars_to_add))
-                sequence = chars_to_add;
+            if (const std::string charsToAdd = sequence + character; dict.contains(charsToAdd))
+            {
+                sequence = charsToAdd;
+            }
             else
             {
                 codes.push_back(dict[sequence]);
-                dict[chars_to_add] = dict_size++;
+                dict[charsToAdd] = dictSize++;
                 sequence = character;
             }
         }
@@ -42,41 +45,29 @@ namespace compressor
         if (!sequence.empty())
             codes.push_back(dict[sequence]);
 
-        WriteCodesToFile(file_path, std::move(codes));
+        WriteCodesToFile(path, codes);
     }
+
 }
 
-std::string GetTextToCompress(const std::string& file_path)
+std::string GetTextToCompress(const fs::path& path)
 {
-    std::fstream file;
-    file.open(file_path, std::fstream::in);
-
-    if (!file.is_open())
+    std::ifstream file(path);
+    if (!file)
         std::cerr << "Error: could not open the file!" << "\n";
 
-
-    std::string data, file_line;
-
-    while (std::getline(file, file_line))
-        data += file_line + "\n";
-
-    return data;
+    const auto fileSize = std::filesystem::file_size(path);
+    std::string text(fileSize, 0);
+    file.read(text.data(), fileSize);
+    return text;
 }
 
-void WriteCodesToFile(
-    const std::string& file_path,
-    std::vector<int>&& codes
-)
+void WriteCodesToFile(const fs::path& path, const std::vector<int>& codes)
 {
-    std::fstream file;
-    file.open(file_path, std::fstream::out | std::fstream::trunc);
-
-    if (!file.is_open())
+    std::ofstream file(path);
+    if (!file)
         std::cerr << "Error: could not open the file!" << "\n";
 
-
-    for (const int& code : codes)
+    for (const int code : codes)
         file << code << "\n";
-
-    file.close();
 }

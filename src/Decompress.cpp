@@ -2,77 +2,73 @@
 
 #include <string>
 #include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <vector>
 #include <map>
 
-static std::vector<int> ReadCodesFromFile(const std::string& file_path);
-static void WriteTextToFile(const std::string& file_path, std::string&& text);
+namespace fs = std::filesystem;
 
-namespace compressor
-{
-    void DecompressFile(std::string&& file_path)
+static std::vector<int> ReadCodesFromFile(const fs::path& path);
+
+static void WriteTextToFile(const fs::path& path, const std::string& text);
+
+namespace compressor {
+
+    void DecompressFile(const fs::path& path)
     {
-        const std::vector<int>& codes = ReadCodesFromFile(file_path);
+        const std::vector<int>& codes = ReadCodesFromFile(path);
         std::map<int, std::string> dict;
-        int dict_size{256};
+        int dictSize = 256;
 
-        for (int i{}; i < dict_size; i++)
+        for (int i = 0; i < dictSize; i++)
             dict[i] = {static_cast<char>(i)};
 
-        int last_code = codes.front();
-        std::string decompressed_text = dict[last_code];
+        int lastCode = codes.front();
+        std::string decompressedText = dict[lastCode];
 
         for (std::size_t i{1}; i < codes.size(); i++)
         {
             int code = codes[i];
-            if (std::string last_sequence = dict[last_code]; dict.contains(code))
+            if (std::string lastSequence = dict[lastCode]; dict.contains(code))
             {
-                dict[dict_size++] = last_sequence + dict[code][0];
-                decompressed_text += dict[code];
+                dict[dictSize++] = lastSequence + dict[code][0];
+                decompressedText += dict[code];
             }
             else
             {
-                std::string value = last_sequence + last_sequence[0];
-                dict[dict_size++] = value;
-                decompressed_text += value;
+                std::string value = lastSequence + lastSequence[0];
+                dict[dictSize++] = value;
+                decompressedText += value;
             }
-            last_code = code;
+            lastCode = code;
         }
 
-        WriteTextToFile(file_path, std::move(decompressed_text));
+        WriteTextToFile(path, decompressedText);
     }
+    
 }
 
-std::vector<int> ReadCodesFromFile(const std::string& file_path)
+std::vector<int> ReadCodesFromFile(const fs::path& path)
 {
-    std::fstream file;
-    file.open(file_path, std::fstream::in);
-
-    if (!file.is_open())
+    std::ifstream file(path);
+    if (!file)
         std::cerr << "Error opening the file!" << '\n';
 
     std::vector<int> codes;
-    std::string file_line;
+    std::string fileLine;
 
-    while (std::getline(file, file_line))
-        codes.push_back(std::stoi(file_line));
+    while (std::getline(file, fileLine))
+        codes.push_back(std::stoi(fileLine));
 
-    file.close();
     return codes;
 }
 
-void WriteTextToFile(const std::string& file_path, std::string&& text)
+void WriteTextToFile(const fs::path& path, const std::string& text)
 {
-    std::fstream file;
-    file.open(file_path, std::fstream::trunc | std::fstream::out);
-
-    if (!file.is_open())
-    {
+    std::ofstream file(path);
+    if (!file)
         std::cerr << "Error opening the file!" << '\n';
-        throw std::runtime_error("Error opening the file!");
-    }
 
     file << text;
-    file.close();
 }
