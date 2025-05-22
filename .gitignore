@@ -1,7 +1,9 @@
 .idea
 .vscode/
 .vs/
-build/
-cmake-build-debug/
+*.iml
+
+*build*/
 out/
-file.txt
+
+test.txt
