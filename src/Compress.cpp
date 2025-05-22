@@ -1,4 +1,4 @@
-#include "Compress.h"
+#include "Compress.hpp"
 
 #include <string>
 #include <fstream>

@@ -1,6 +1,6 @@
-#include "Compressor.h"
-#include "Compress.h"
-#include "Decompress.h"
+#include "Compressor.hpp"
+#include "Compress.hpp"
+#include "Decompress.hpp"
 
 #include <iostream>
 #include <string>

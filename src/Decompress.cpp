@@ -1,4 +1,4 @@
-#include "Decompress.h"
+#include "Decompress.hpp"
 
 #include <string>
 #include <fstream>
