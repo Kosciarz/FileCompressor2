@@ -5,41 +5,62 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <cstdint>
 
-namespace compressor
-{
+static void DisplayMenu();
+
+namespace compressor {
+
     void Run()
     {
         std::cout << "Welcome to File Compressor / Decompressor!\n";
-        int operation{};
+        std::uint32_t operation = 0;
 
-        do
+        while (true)
         {
-            std::cout << "\nChose operation:\n";
-            std::cout << "1. Compress file\n";
-            std::cout << "2. Decompress file\n";
-            std::cout << "3. Exit\n";
+            DisplayMenu();
             std::cin >> operation;
 
-            if (std::cin.fail() || operation < 1 || operation > 3)
+            if (std::cin.fail())
             {
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "\nEnter a valid operation! Please try again\n";
+                std::cout << '\n' << "Enter a valid operation. Please try again." << '\n';
                 continue;
             }
 
-            if (operation == 3) return;
-
-            std::cout << "Path to file: " << "\n";
-            std::string file_path;
-            std::cin >> file_path;
-
-            if (operation == 1)
-                CompressFile(std::move(file_path));
-            if (operation == 2)
-                DecompressFile(std::move(file_path));
+            switch (operation)
+            {
+                case 1:
+                {
+                    std::cout << "Path to file: " << "\n";
+                    std::filesystem::path path{};
+                    std::cin >> path;
+                    CompressFile(path);
+                    break;
+                }
+                case 2:
+                {
+                    std::cout << "Path to file: " << "\n";
+                    std::filesystem::path path{};
+                    std::cin >> path;
+                    DecompressFile(path);
+                    break;
+                }
+                case 3:
+                    return;
+                default:
+                    std::cout << '\n' << "Enter a valid operation. Please try again." << '\n';
+            }
         }
-        while (true);
     }
+
+}
+
+void DisplayMenu()
+{
+    std::cout << "Chose operation:" << '\n';
+    std::cout << "1. Compress file" << '\n';
+    std::cout << "2. Decompress file" << '\n';
+    std::cout << "3. Exit" << '\n';
 }
