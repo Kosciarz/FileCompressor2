@@ -1,9 +1,12 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
+
+#include "Result.hpp"
 
 namespace compressor {
 
-    void DecompressFile(const std::filesystem::path& path);
+    Result<void, std::string> DecompressFile(const std::filesystem::path& path);
     
 }

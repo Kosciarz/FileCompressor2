@@ -1,5 +1,3 @@
-#include "Compress.hpp"
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -8,17 +6,24 @@
 #include <vector>
 #include <cstdint>
 
+#include "Compress.hpp"
+#include "Result.hpp"
+
 namespace fs = std::filesystem;
 
-static std::string GetTextToCompress(const fs::path& path);
+Result<std::string, std::string> GetTextToCompress(const fs::path& path);
 
-static void WriteCodesToFile(const fs::path& path, const std::vector<std::int32_t>& codes);
+static Result<void, std::string> WriteCodesToFile(const fs::path& path, const std::vector<std::int32_t>& codes);
 
 namespace compressor {
 
-    void CompressFile(const fs::path& path)
+    Result<void, std::string> CompressFile(const fs::path& path)
     {
-        const std::string textToCompress = GetTextToCompress(path);
+        const auto& textResult = GetTextToCompress(path);
+        if (!textResult)
+            return Result<void, std::string>::Err(textResult.Error());
+
+        const auto& text = textResult.Value();
 
         std::map<std::string, std::int32_t> dict;
         std::int32_t dictSize = 256;
@@ -29,7 +34,7 @@ namespace compressor {
         std::vector<std::int32_t> codes;
         std::string sequence;
 
-        for (const char character : textToCompress)
+        for (const char character : text)
         {
             if (const std::string charsToAdd = sequence + character; dict.contains(charsToAdd))
             {
@@ -46,29 +51,34 @@ namespace compressor {
         if (!sequence.empty())
             codes.push_back(dict[sequence]);
 
-        WriteCodesToFile(path, codes);
+        const auto& writeResult = WriteCodesToFile(path, codes);
+        if (!writeResult)
+            return Result<void, std::string>::Err(writeResult.Error());
+        return Result<void, std::string>::Ok();
     }
 
 }
 
-std::string GetTextToCompress(const fs::path& path)
+Result<std::string, std::string> GetTextToCompress(const fs::path& path)
 {
     std::ifstream file(path);
     if (!file)
-        std::cerr << "Error: failed to open file: " << path.string() << '\n';
+        return Result<std::string, std::string>::Err("Failed to open file: " + path.string());
 
     const auto fileSize = std::filesystem::file_size(path);
     std::string text(fileSize, 0);
     file.read(text.data(), fileSize);
-    return text;
+    return Result<std::string, std::string>::Ok(text);
 }
 
-void WriteCodesToFile(const fs::path& path, const std::vector<std::int32_t>& codes)
+Result<void, std::string> WriteCodesToFile(const fs::path& path, const std::vector<std::int32_t>& codes)
 {
     std::ofstream file(path);
     if (!file)
-        std::cerr << "Error: failed to open file: " << path.string() << '\n';
+        return Result<void, std::string>::Err("Failed to open file: " + path.string());
 
     for (const std::int32_t code : codes)
         file << code << '\n';
+    
+    return Result<void, std::string>::Ok();
 }

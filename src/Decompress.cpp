@@ -1,5 +1,3 @@
-#include "Decompress.hpp"
-
 #include <string>
 #include <fstream>
 #include <filesystem>
@@ -8,17 +6,25 @@
 #include <map>
 #include <cstdint>
 
+#include "Decompress.hpp"
+#include "Result.hpp"
+
 namespace fs = std::filesystem;
 
-static std::vector<std::int32_t> ReadCodesFromFile(const fs::path& path);
+static Result<std::vector<std::uint32_t>, std::string> ReadCodesFromFile(const fs::path& path);
 
-static void WriteTextToFile(const fs::path& path, const std::string& text);
+static Result<void, std::string> WriteTextToFile(const fs::path& path, const std::string& text);
 
 namespace compressor {
 
-    void DecompressFile(const fs::path& path)
+    Result<void, std::string> DecompressFile(const fs::path& path)
     {
-        const std::vector<std::int32_t>& codes = ReadCodesFromFile(path);
+        const auto& codesResult = ReadCodesFromFile(path);
+        if (!codesResult)
+            return Result<void, std::string>::Err(codesResult.Error());
+
+        const auto& codes = codesResult.Value();
+
         std::map<std::int32_t, std::string> dict;
         std::int32_t dictSize = 256;
 
@@ -45,31 +51,35 @@ namespace compressor {
             lastCode = code;
         }
 
-        WriteTextToFile(path, decompressedText);
+        const auto& writeResult = WriteTextToFile(path, decompressedText);
+        if (!writeResult)
+            return Result<void, std::string>::Err(writeResult.Error());
+        return Result<void, std::string>::Ok();
     }
 
 }
 
-std::vector<std::int32_t> ReadCodesFromFile(const fs::path& path)
+Result<std::vector<std::uint32_t>, std::string> ReadCodesFromFile(const fs::path& path)
 {
     std::ifstream file(path);
     if (!file)
-        std::cerr << "Error: failed to open file: " << path.string() << '\n';
+        return Result<std::vector<std::uint32_t>, std::string>::Err("Failed to open file: " + path.string());
 
-    std::vector<std::int32_t> codes;
+    std::vector<std::uint32_t> codes;
     std::string fileLine;
 
     while (std::getline(file, fileLine))
         codes.push_back(std::stoi(fileLine));
 
-    return codes;
+    return Result<std::vector<std::uint32_t>, std::string>::Ok(codes);
 }
 
-void WriteTextToFile(const fs::path& path, const std::string& text)
+Result<void, std::string> WriteTextToFile(const fs::path& path, const std::string& text)
 {
     std::ofstream file(path);
     if (!file)
-        std::cerr << "Error: failed to open file: " << path.string() << '\n';
+        return Result<void, std::string>::Err("Failed to open file: " + path.string());
 
     file << text;
+    return Result<void, std::string>::Ok();
 }

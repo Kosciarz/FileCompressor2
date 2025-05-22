@@ -1,11 +1,14 @@
-#include "Compressor.hpp"
-#include "Compress.hpp"
-#include "Decompress.hpp"
-
 #include <iostream>
 #include <string>
 #include <limits>
 #include <cstdint>
+
+#include "Compressor.hpp"
+#include "Compress.hpp"
+#include "Decompress.hpp"
+#include "Result.hpp"
+
+namespace fs = std::filesystem;
 
 static void DisplayMenu();
 
@@ -13,7 +16,7 @@ namespace compressor {
 
     void Run()
     {
-        std::cout << "Welcome to File Compressor / Decompressor!\n";
+        std::cout << "Welcome to File Compressor / Decompressor!" << '\n';
         std::uint32_t operation = 0;
 
         while (true)
@@ -25,7 +28,7 @@ namespace compressor {
             {
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << '\n' << "Enter a valid operation. Please try again." << '\n';
+                std::cout << "Enter a valid operation. Please try again." << '\n';
                 continue;
             }
 
@@ -34,23 +37,27 @@ namespace compressor {
                 case 1:
                 {
                     std::cout << "Path to file: " << "\n";
-                    std::filesystem::path path{};
+                    fs::path path{};
                     std::cin >> path;
-                    CompressFile(path);
+                    const auto& compressResult = CompressFile(path);
+                    if (!compressResult)
+                        std::cerr << "Error: " << compressResult.Error() << '\n';
                     break;
                 }
                 case 2:
                 {
                     std::cout << "Path to file: " << "\n";
-                    std::filesystem::path path{};
+                    fs::path path{};
                     std::cin >> path;
-                    DecompressFile(path);
+                    const auto& decompressResult = DecompressFile(path);
+                    if (!decompressResult)
+                        std::cerr << "Error: " << decompressResult.Error() << '\n';
                     break;
                 }
                 case 3:
                     return;
                 default:
-                    std::cout << '\n' << "Enter a valid operation. Please try again." << '\n';
+                    std::cerr << "Enter a valid operation. Please try again." << '\n';
             }
         }
     }
